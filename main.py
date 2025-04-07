@@ -83,29 +83,44 @@ def calculate_rpn(rpn_list):
 
     return stack[0] if stack else None
 
-expressionInput = input("Enter Expression: ")
-expressionList = []
-current_chunk = ""
+def get_valid_expression():
+    while True:
+        expression_input = input("Enter expression: ")
+        expression_list = []
+        current_chunk = ""
+        valid_chars = set("0123456789+-*/%^().sqrtrootasinacosatan")
 
-for i, char in enumerate(expressionInput):
-    if char.isalnum() or char == ".":
-        current_chunk += char
-    else:
+        for char in expression_input:
+            if char.lower() in valid_chars:
+                current_chunk += char.lower()
+            elif char.strip():
+                if current_chunk:
+                    expression_list.append(current_chunk)
+                    current_chunk = ""
+                expression_list.append(char.lower())
+
         if current_chunk:
-            expressionList.append(current_chunk.lower())
-            current_chunk = ""
-        if char.strip():
-            if char == "(" and expressionList and (
-                expressionList[-1].isdigit() or expressionList[-1] == ")"
-            ):
-                expressionList.append("*")
-            expressionList.append(char.lower())
+            expression_list.append(current_chunk)
 
-if current_chunk:
-    expressionList.append(current_chunk.lower())
+        if expression_list and expression_list[0] not in "+-*/%^" and expression_list[-1] not in "+-*/%^":
+            return expression_list
+        else:
+            print("Invalid input. Please enter a valid mathematical expression.")
 
-rpn_result = to_rpn(expressionList)
-if float(calculate_rpn(rpn_result)) == int(calculate_rpn(rpn_result)):
-    print("Result:", int(calculate_rpn(rpn_result)))
-else:
-    print("Result:", calculate_rpn(rpn_result))
+def main():
+    expression_list = get_valid_expression()
+    rpn_result = to_rpn(expression_list)
+    try:
+        result = calculate_rpn(rpn_result)
+        if result is not None:
+            if float(result) == int(result):
+                print("Result:", int(result))
+            else:
+                print("Result:", result)
+        else:
+            print("Error: Could not calculate the result.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
